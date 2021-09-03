@@ -23,6 +23,7 @@ sha2 = "0.8"
 hex = "0.4"
 argh = "0.1"
 anyhow = "1.0"
+criterion = "0.3"
 
 [features]
 buildtime-bindgen = ["darknet-sys/buildtime-bindgen"]
@@ -31,3 +32,7 @@ dylib = ["darknet-sys/dylib"]
 enable-opencv = ["darknet-sys/enable-opencv"]
 enable-cuda = ["darknet-sys/enable-cuda"]
 enable-cudnn = ["darknet-sys/enable-cudnn"]
+
+[[bench]]
+name = "benchmarks"
+harness = false

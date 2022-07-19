@@ -173,6 +173,74 @@ impl Network {
             }
         }
     }
+
+    /// Run inference on an image.
+    pub fn predict_texture(
+        &mut self,
+        texture_id: u32,
+        thresh: f32,
+        hier_thres: f32,
+        nms: f32,
+        use_letter_box: bool,
+    ) -> Detections
+    {
+        // let cow = image.into_cow_image();
+
+        unsafe {
+            let output_layer = self
+                .net
+                .as_ref()
+                .layers
+                .add(self.num_layers() - 1)
+                .as_ref()
+                .unwrap();
+
+            // run prediction
+            if use_letter_box {
+                // sys::network_predict_image_letterbox(self.net.as_ptr(), cow.image);
+            } else {
+                sys::network_predict_texture(self.net.as_ptr(), texture_id);
+            }
+
+            let width = 608;
+            let height = 608;
+
+            let mut nboxes: c_int = 0;
+            let dets_ptr = sys::get_network_boxes(
+                self.net.as_mut(),
+                width,
+                height,
+                thresh,
+                hier_thres,
+                ptr::null_mut(),
+                1,
+                &mut nboxes,
+                use_letter_box as c_int,
+            );
+            let dets = NonNull::new(dets_ptr).unwrap();
+
+            // NMS sort
+            if nms != 0.0 {
+                if output_layer.nms_kind == sys::NMS_KIND_DEFAULT_NMS {
+                    sys::do_nms_sort(dets.as_ptr(), nboxes, output_layer.classes, nms);
+                } else {
+                    sys::diounms_sort(
+                        dets.as_ptr(),
+                        nboxes,
+                        output_layer.classes,
+                        nms,
+                        output_layer.nms_kind,
+                        output_layer.beta_nms,
+                    );
+                }
+            }
+
+            Detections {
+                detections: dets,
+                n_detections: nboxes as usize,
+            }
+        }
+    }
 }
 
 impl Drop for Network {

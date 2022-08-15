@@ -199,7 +199,7 @@ impl Network {
             if use_letter_box {
                 // sys::network_predict_image_letterbox(self.net.as_ptr(), cow.image);
             } else {
-                sys::network_predict_texture(self.net.as_ptr(), texture_id);
+                sys::network_predict_gl_texture(self.net.as_ptr(), texture_id);
             }
 
             let width = 608;

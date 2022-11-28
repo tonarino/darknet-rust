@@ -175,6 +175,7 @@ impl Network {
     }
 
     /// Run inference on an image.
+    #[cfg(feature = "enable-cuda-opengl-integration")]
     pub fn predict_texture(
         &mut self,
         texture_id: u32,
@@ -182,8 +183,7 @@ impl Network {
         hier_thres: f32,
         nms: f32,
         use_letter_box: bool,
-    ) -> Detections
-    {
+    ) -> Detections {
         // let cow = image.into_cow_image();
 
         unsafe {
